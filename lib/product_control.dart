@@ -15,7 +15,10 @@ class ProductControl extends StatelessWidget {
         ),
       ),
       color: Theme.of(context).primaryColor,
-      onPressed: () => addProduct('Sweet Table'),
+      onPressed: () => addProduct({
+        'title': 'Sweet Table',
+        'image': 'assets/sweet.jpg',
+      }),
     );
   }
 }
