@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import './pages/product_screen.dart';
 import './pages/product_admin_screen.dart';
 import './pages/product_details_screen.dart';
+import './pages/auth_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,9 +13,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String, String>> _product = [];
+  List<Map<String, dynamic>> _product = [];
 
-  void _addProduct(Map<String, String> products) {
+  void _addProduct(Map<String, dynamic> products) {
     setState(() {
       _product.add(products);
     });
@@ -34,14 +35,13 @@ class _MyAppState extends State<MyApp> {
         primaryColor: Colors.teal,
         primarySwatch: Colors.indigo,
       ),
-      //home: AuthScreen(),
+      home: AuthScreen(),
       routes: {
-        '/': (BuildContext context) => ProductScreen(
-              _product,
+        '/product': (BuildContext context) => ProductScreen(_product),
+        '/admin': (BuildContext context) => ProductAdminScreen(
               _addProduct,
               _deleteProduct,
             ),
-        '/admin': (BuildContext context) => ProductAdminScreen()
       },
       onGenerateRoute: (RouteSettings settings) {
         final pathElements = settings.name.split('/');
@@ -61,11 +61,7 @@ class _MyAppState extends State<MyApp> {
       },
       onUnknownRoute: (RouteSettings settings) {
         return MaterialPageRoute(
-          builder: (BuildContext context) => ProductScreen(
-            _product,
-            _addProduct,
-            _deleteProduct,
-          ),
+          builder: (BuildContext context) => ProductScreen(_product),
         );
       },
     );

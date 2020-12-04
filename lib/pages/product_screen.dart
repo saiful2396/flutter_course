@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import '../product_manager.dart';
 
 class ProductScreen extends StatelessWidget {
-  final List<Map<String, String>> products;
-  final Function addProduct;
-  final Function deleteProduct;
-  ProductScreen(this.products, this.addProduct, this.deleteProduct);
+  final List<Map<String, dynamic>> products;
+
+  ProductScreen(this.products);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +32,7 @@ class ProductScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: ProductManager(products, addProduct, deleteProduct),
+      body: ProductManager(products),
     );
   }
 }

@@ -4,6 +4,10 @@ import './product_list_screen.dart';
 import './product_create_screen.dart';
 
 class ProductAdminScreen extends StatelessWidget {
+  final Function addProduct;
+  final Function deleteProduct;
+  ProductAdminScreen(this.addProduct, this.deleteProduct);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -36,7 +40,7 @@ class ProductAdminScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushReplacementNamed(
                     context,
-                   '/',
+                   '/product',
                   );
                 },
               ),
@@ -45,7 +49,7 @@ class ProductAdminScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            ProductCreateScreen(),
+            ProductCreateScreen(addProduct),
             ProductLIstScreen(),
           ],
         ),
