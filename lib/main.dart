@@ -35,6 +35,7 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.light,
         primaryColor: Colors.teal,
         primarySwatch: Colors.indigo,
+        buttonColor: Colors.indigo,
         //fontFamily: 'Oswald',
       ),
       home: AuthScreen(),
@@ -56,6 +57,8 @@ class _MyAppState extends State<MyApp> {
             builder: (BuildContext context) => ProductDetailsScreen(
               imageUrl: _product[index]['image'],
               title: _product[index]['title'],
+              price: _product[index]['price'],
+              description: _product[index]['description'],
             ),
           );
         }
