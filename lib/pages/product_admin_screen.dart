@@ -36,6 +36,7 @@ class ProductAdminScreen extends StatelessWidget {
                 title: Text('Choose'),
               ),
               ListTile(
+                leading: Icon(Icons.shop),
                 title: Text('All Product'),
                 onTap: () {
                   Navigator.pushReplacementNamed(

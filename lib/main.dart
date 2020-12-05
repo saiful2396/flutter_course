@@ -32,8 +32,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.light,
         primaryColor: Colors.teal,
         primarySwatch: Colors.indigo,
+        //fontFamily: 'Oswald',
       ),
       home: AuthScreen(),
       routes: {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../product_manager.dart';
+import '../widgets/products/products.dart';
 
 class ProductScreen extends StatelessWidget {
   final List<Map<String, dynamic>> products;
@@ -12,6 +12,12 @@ class ProductScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('EasyLoad'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: () {},
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Column(
@@ -21,6 +27,7 @@ class ProductScreen extends StatelessWidget {
               title: Text('Choose'),
             ),
             ListTile(
+              leading: Icon(Icons.edit),
               title: Text('Manage Product'),
               onTap: () {
                 Navigator.pushReplacementNamed(
@@ -32,7 +39,7 @@ class ProductScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: ProductManager(products),
+      body: Products(products),
     );
   }
 }
