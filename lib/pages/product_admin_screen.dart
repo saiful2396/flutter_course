@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
 import './product_list_screen.dart';
-import './product_create_screen.dart';
+import './product_edit_screen.dart';
 
 class ProductAdminScreen extends StatelessWidget {
   final Function addProduct;
+  final Function updateProduct;
   final Function deleteProduct;
-  ProductAdminScreen(this.addProduct, this.deleteProduct);
+  final List<Map<String, dynamic>> products;
+
+  ProductAdminScreen(
+    this.addProduct,
+    this.updateProduct,
+    this.deleteProduct,
+    this.products,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +49,7 @@ class ProductAdminScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushReplacementNamed(
                     context,
-                   '/product',
+                    '/product',
                   );
                 },
               ),
@@ -50,8 +58,8 @@ class ProductAdminScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            ProductCreateScreen(addProduct),
-            ProductLIstScreen(),
+            ProductEditScreen(addProduct: addProduct),
+            ProductListScreen(products, updateProduct ),
           ],
         ),
       ),

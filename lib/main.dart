@@ -20,6 +20,11 @@ class _MyAppState extends State<MyApp> {
       _product.add(products);
     });
   }
+  void _updateProduct(int index, Map<String, dynamic> product){
+    setState(() {
+      _product[index] = product;
+    });
+  }
 
   void _deleteProduct(int index) {
     setState(() {
@@ -43,7 +48,9 @@ class _MyAppState extends State<MyApp> {
         '/product': (BuildContext context) => ProductScreen(_product),
         '/admin': (BuildContext context) => ProductAdminScreen(
               _addProduct,
+              _updateProduct,
               _deleteProduct,
+              _product,
             ),
       },
       onGenerateRoute: (RouteSettings settings) {
