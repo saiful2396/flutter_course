@@ -59,7 +59,7 @@ class ProductAdminScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             ProductEditScreen(addProduct: addProduct),
-            ProductListScreen(products, updateProduct ),
+            ProductListScreen(products, updateProduct, deleteProduct),
           ],
         ),
       ),
