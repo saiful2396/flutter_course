@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/ui_element/title_default.dart';
+import '../scope-models/products_model.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final double price;
-  final String description;
+  final int prodIndex;
 
-  ProductDetailsScreen({
-    this.title,
-    this.imageUrl,
-    this.price,
-    this.description,
-  });
+  ProductDetailsScreen({this.prodIndex});
 
   /*_showDialog(BuildContext context) {
     showDialog(
@@ -46,48 +40,50 @@ class ProductDetailsScreen extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(true);
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: Column(
-          children: [
-            Image.asset(
-              imageUrl,
-              height: 250,
-              width: double.infinity,
-              fit: BoxFit.cover,
+      child: ScopedModelDescendant<ProductsModel>(
+        builder: (BuildContext context, Widget child, ProductsModel model) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(model.products[prodIndex].title),
             ),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: TitleDefault(title),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            body: Column(
               children: [
-                Text(
-                  'Simanto Square, Dhaka',
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    color: Colors.grey,
-                  ),
+                Image.asset(
+                  model.products[prodIndex].image,
+                  height: 250,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Text(
-                    '|',
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  padding: EdgeInsets.all(10.0),
+                  child: TitleDefault(model.products[prodIndex].title),
                 ),
-                Text(
-                  price.toString(),
-                  style: TextStyle(color: Colors.grey),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Simanto Square, Dhaka',
+                      style: TextStyle(
+                        fontFamily: 'Lato',
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Text(
+                        '|',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    Text(
+                      model.products[prodIndex].price.toString(),
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Text(description),
-            /*Container(
+                SizedBox(height: 10),
+                Text(model.products[prodIndex].description),
+                /*Container(
               padding: EdgeInsets.all(10.0),
               child: RaisedButton(
                 color: Theme.of(context).primaryColor,
@@ -95,8 +91,10 @@ class ProductDetailsScreen extends StatelessWidget {
                 child: Text('DELETE'),
               ),
             ),*/
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

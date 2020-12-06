@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/products/products.dart';
+import '../models/product.dart';
 
 class ProductScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> products;
-
-  ProductScreen(this.products);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +36,7 @@ class ProductScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: Products(products),
+      body: Products(),
     );
   }
 }

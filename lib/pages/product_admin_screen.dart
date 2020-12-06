@@ -4,18 +4,6 @@ import './product_list_screen.dart';
 import './product_edit_screen.dart';
 
 class ProductAdminScreen extends StatelessWidget {
-  final Function addProduct;
-  final Function updateProduct;
-  final Function deleteProduct;
-  final List<Map<String, dynamic>> products;
-
-  ProductAdminScreen(
-    this.addProduct,
-    this.updateProduct,
-    this.deleteProduct,
-    this.products,
-  );
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -58,8 +46,8 @@ class ProductAdminScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            ProductEditScreen(addProduct: addProduct),
-            ProductListScreen(products, updateProduct, deleteProduct),
+            ProductEditScreen(),
+            ProductListScreen(),
           ],
         ),
       ),
