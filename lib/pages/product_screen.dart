@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:scoped_model/scoped_model.dart';
+
 import '../widgets/products/products.dart';
-import '../models/product.dart';
+import '../scope-models/main_model.dart';
 
 class ProductScreen extends StatelessWidget {
   @override
@@ -10,10 +12,17 @@ class ProductScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('EasyLoad'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () {},
-          ),
+          ScopedModelDescendant<MainModel>(
+              builder: (context, child, model) {
+            return IconButton(
+              icon: Icon(
+                model.displayFavOnly ? Icons.favorite : Icons.favorite_border,
+              ),
+              onPressed: () {
+                model.toggleDisplayMode();
+              },
+            );
+          }),
         ],
       ),
       drawer: Drawer(

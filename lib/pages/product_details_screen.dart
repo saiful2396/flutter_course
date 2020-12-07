@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/ui_element/title_default.dart';
-import '../scope-models/products_model.dart';
+import '../scope-models/main_model.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final int prodIndex;
@@ -40,23 +40,23 @@ class ProductDetailsScreen extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(true);
       },
-      child: ScopedModelDescendant<ProductsModel>(
-        builder: (BuildContext context, Widget child, ProductsModel model) {
+      child: ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(model.products[prodIndex].title),
+              title: Text(model.allProducts[prodIndex].title),
             ),
             body: Column(
               children: [
                 Image.asset(
-                  model.products[prodIndex].image,
+                  model.allProducts[prodIndex].image,
                   height: 250,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
                 Container(
                   padding: EdgeInsets.all(10.0),
-                  child: TitleDefault(model.products[prodIndex].title),
+                  child: TitleDefault(model.allProducts[prodIndex].title),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -76,21 +76,13 @@ class ProductDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      model.products[prodIndex].price.toString(),
+                      model.allProducts[prodIndex].price.toString(),
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
-                Text(model.products[prodIndex].description),
-                /*Container(
-              padding: EdgeInsets.all(10.0),
-              child: RaisedButton(
-                color: Theme.of(context).primaryColor,
-                onPressed: () => _showDialog(context),
-                child: Text('DELETE'),
-              ),
-            ),*/
+                Text(model.allProducts[prodIndex].description),
               ],
             ),
           );

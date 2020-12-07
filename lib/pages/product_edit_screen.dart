@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/helpers/ensure_visible.dart';
-import '../models/product.dart';
-import '../scope-models/products_model.dart';
+import '../scope-models/main_model.dart';
 
 class ProductEditScreen extends StatefulWidget {
   @override
@@ -22,7 +22,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
 
-  void _saveForm(Function addProduct, Function updateProduct,
+  void _saveForm(Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProdIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
@@ -30,24 +30,20 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     _formKey.currentState.save();
     if (selectedProdIndex == null) {
       addProduct(
-        Product(
-          title: _formData['title'],
-          description: _formData['description'],
-          image: _formData['image'],
-          price: _formData['price'],
-        ),
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
       );
     } else {
       updateProduct(
-        Product(
-          title: _formData['title'],
-          description: _formData['description'],
-          image: _formData['image'],
-          price: _formData['price'],
-        ),
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
       );
     }
-    Navigator.pushReplacementNamed(context, '/product');
+    Navigator.pushReplacementNamed(context, '/product').then((_) => setSelectedProduct(null));
   }
 
   @override
@@ -55,8 +51,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double devicePadding = deviceWidth - targetWidth;
-    return ScopedModelDescendant<ProductsModel>(
-      builder: (BuildContext context, Widget child, ProductsModel model) {
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
         final Widget pageContent = GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(FocusNode());
@@ -149,6 +145,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       onPressed: () => _saveForm(
                         model.addProduct,
                         model.updateProduct,
+                        model.selectProduct,
                         model.selectedProdIndex,
                       ),
                       child: Text('Save'),
@@ -163,7 +160,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             ),
           ),
         );
-        return model.selectedProdIndex == null
+        return model.selectedProduct == null
             ? pageContent
             : Scaffold(
                 appBar: AppBar(

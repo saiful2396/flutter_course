@@ -5,7 +5,7 @@ import './pages/product_screen.dart';
 import './pages/product_admin_screen.dart';
 import './pages/product_details_screen.dart';
 import './pages/auth_screen.dart';
-import './scope-models/products_model.dart';
+import './scope-models/main_model.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,8 +17,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<ProductsModel>(
-      model: ProductsModel(),
+    return ScopedModel<MainModel>(
+      model: MainModel(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

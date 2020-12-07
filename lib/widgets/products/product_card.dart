@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:scoped_model/scoped_model.dart';
+
 import './product_tag.dart';
 import './address_tag.dart';
 import '../ui_element/title_default.dart';
 import '../../models/product.dart';
-
+import '../../scope-models/main_model.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
   final int prodIndex;
+
   ProductCard(this.product, this.prodIndex);
 
   @override
@@ -36,6 +39,7 @@ class ProductCard extends StatelessWidget {
             ),
           ),
           AddressTag('Simanto Square, Dhaka'),
+          Text(product.userEmail),
           ButtonBar(
             alignment: MainAxisAlignment.center,
             children: [
@@ -47,17 +51,20 @@ class ProductCard extends StatelessWidget {
                     context,
                     '/products/' + prodIndex.toString(),
                   );
-                  /*.then((bool value) {
-                    if (value) {
-                      deleteProduct(index);
-                    }
-                  });*/
                 },
               ),
-              IconButton(
-                icon: Icon(Icons.favorite_border),
-                color: Theme.of(context).accentColor,
-                onPressed: () {},
+              ScopedModelDescendant<MainModel>(
+                builder:
+                    (BuildContext context, Widget child, MainModel model) {
+                  return IconButton(
+                    icon: Icon(model.allProducts[prodIndex].isFav ? Icons.favorite : Icons.favorite_border),
+                    color: Theme.of(context).accentColor,
+                    onPressed: () {
+                      model.selectProduct(prodIndex);
+                      model.toggleFav();
+                    },
+                  );
+                },
               ),
             ],
           )

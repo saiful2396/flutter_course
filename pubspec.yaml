@@ -20,6 +20,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+analyzer:
+  strong-mode: true
+  language:
+    enableSuperMixins: true
 
 flutter:
 
