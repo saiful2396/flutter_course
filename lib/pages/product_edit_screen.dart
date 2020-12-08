@@ -22,7 +22,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
 
-  void _saveForm(Function addProduct, Function updateProduct, Function setSelectedProduct,
+  void _saveForm(
+      Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProdIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
@@ -34,6 +35,10 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
+      ).then(
+        (_) => Navigator.pushReplacementNamed(context, '/product').then(
+          (_) => setSelectedProduct(null),
+        ),
       );
     } else {
       updateProduct(
@@ -43,7 +48,6 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         _formData['price'],
       );
     }
-    Navigator.pushReplacementNamed(context, '/product').then((_) => setSelectedProduct(null));
   }
 
   @override
@@ -141,19 +145,23 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                     margin: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 10),
                     alignment: Alignment.bottomRight,
-                    child: RaisedButton(
-                      onPressed: () => _saveForm(
-                        model.addProduct,
-                        model.updateProduct,
-                        model.selectProduct,
-                        model.selectedProdIndex,
-                      ),
-                      child: Text('Save'),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      textColor: Colors.white,
-                    ),
+                    child: model.isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : RaisedButton(
+                            onPressed: () => _saveForm(
+                              model.addProduct,
+                              model.updateProduct,
+                              model.selectProduct,
+                              model.selectedProdIndex,
+                            ),
+                            child: Text('Save'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            textColor: Colors.white,
+                          ),
                   ),
                 ],
               ),

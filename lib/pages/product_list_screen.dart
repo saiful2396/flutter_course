@@ -42,7 +42,7 @@ class ProductListScreen extends StatelessWidget {
                     ListTile(
                       leading: CircleAvatar(
                           backgroundImage:
-                              AssetImage(model.allProducts[index].image)),
+                              NetworkImage(model.allProducts[index].image)),
                       title: Text(model.allProducts[index].title),
                       subtitle: Text(
                           '\$${model.allProducts[index].price.toString()}'),
