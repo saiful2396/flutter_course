@@ -6,6 +6,7 @@ import './pages/product_admin_screen.dart';
 import './pages/product_details_screen.dart';
 import './pages/auth_screen.dart';
 import './scope-models/main_model.dart';
+import './models/product.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
         home: AuthScreen(),
         routes: {
           '/product': (BuildContext context) => ProductScreen(model),
-          '/admin': (BuildContext context) => ProductAdminScreen(),
+          '/admin': (BuildContext context) => ProductAdminScreen(model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final pathElements = settings.name.split('/');
@@ -40,9 +41,12 @@ class _MyAppState extends State<MyApp> {
             return null;
           }
           if (pathElements[1] == 'products') {
-            final int index = int.parse(pathElements[2]);
+            final String productId = pathElements[2];
+            final Product product = model.allProducts.firstWhere((Product product) {
+              return product.id == productId;
+            });
             return MaterialPageRoute<bool>(
-              builder: (BuildContext context) => ProductDetailsScreen(prodIndex: index),
+              builder: (BuildContext context) => ProductDetailsScreen(product),
             );
           }
           return null;

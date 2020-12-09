@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/ui_element/title_default.dart';
-import '../scope-models/main_model.dart';
+import '../models/product.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
-  final int prodIndex;
+  final Product product;
 
-  ProductDetailsScreen({this.prodIndex});
+  ProductDetailsScreen(this.product);
 
   /*_showDialog(BuildContext context) {
     showDialog(
@@ -40,53 +39,50 @@ class ProductDetailsScreen extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(true);
       },
-      child: ScopedModelDescendant<MainModel>(
-        builder: (BuildContext context, Widget child, MainModel model) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(model.allProducts[prodIndex].title),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(product.title),
+        ),
+        body: Column(
+          children: [
+            FadeInImage(
+              image: NetworkImage(product.image),
+              height: 250,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              placeholder: AssetImage('assets/sweet.jpg'),
             ),
-            body: Column(
+            Container(
+              padding: EdgeInsets.all(10.0),
+              child: TitleDefault(product.title),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  model.allProducts[prodIndex].image,
-                  height: 250,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+                Text(
+                  'Simanto Square, Dhaka',
+                  style: TextStyle(
+                    fontFamily: 'Lato',
+                    color: Colors.grey,
+                  ),
                 ),
                 Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: TitleDefault(model.allProducts[prodIndex].title),
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Text(
+                    '|',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Simanto Square, Dhaka',
-                      style: TextStyle(
-                        fontFamily: 'Lato',
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Text(
-                        '|',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    Text(
-                      model.allProducts[prodIndex].price.toString(),
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
+                Text(
+                  product.price.toString(),
+                  style: TextStyle(color: Colors.grey),
                 ),
-                SizedBox(height: 10),
-                Text(model.allProducts[prodIndex].description),
               ],
             ),
-          );
-        },
+            SizedBox(height: 10),
+            Text(product.description),
+          ],
+        ),
       ),
     );
   }

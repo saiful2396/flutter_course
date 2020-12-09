@@ -29,8 +29,39 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       return;
     }
     _formKey.currentState.save();
-    if (selectedProdIndex == null) {
+    if (selectedProdIndex == -1) {
       addProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
+      ).then(
+        (bool success) {
+          if (success) {
+            return Navigator.pushReplacementNamed(context, '/product').then(
+              (_) => setSelectedProduct(null),
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Something went wrong'),
+                  content: Text('Please try again later'),
+                  actions: [
+                    FlatButton(
+                      child: Text('Okay'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        },
+      );
+    } else {
+      updateProduct(
         _formData['title'],
         _formData['description'],
         _formData['image'],
@@ -39,13 +70,6 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         (_) => Navigator.pushReplacementNamed(context, '/product').then(
           (_) => setSelectedProduct(null),
         ),
-      );
-    } else {
-      updateProduct(
-        _formData['title'],
-        _formData['description'],
-        _formData['image'],
-        _formData['price'],
       );
     }
   }
@@ -168,7 +192,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             ),
           ),
         );
-        return model.selectedProduct == null
+        return model.selectedProdIndex == -1
             ? pageContent
             : Scaffold(
                 appBar: AppBar(

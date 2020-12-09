@@ -4,7 +4,22 @@ import 'package:scoped_model/scoped_model.dart';
 import './product_edit_screen.dart';
 import '../scope-models/main_model.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends StatefulWidget {
+  final MainModel model;
+
+  ProductListScreen(this.model);
+
+  @override
+  _ProductListScreenState createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends State<ProductListScreen> {
+  @override
+  void initState() {
+    widget.model.fetchData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
@@ -31,7 +46,7 @@ class ProductListScreen extends StatelessWidget {
                 ),
                 onDismissed: (DismissDirection direction) {
                   if (direction == DismissDirection.endToStart) {
-                    model.selectedProduct;
+                    model.selectProduct(model.allProducts[index].id);
                     model.deleteProduct();
                   } else {
                     print('Other');
@@ -49,7 +64,7 @@ class ProductListScreen extends StatelessWidget {
                       trailing: IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () {
-                          model.selectProduct(index);
+                          model.selectProduct(model.allProducts[index].id);
                           Navigator.push(
                             context,
                             MaterialPageRoute(

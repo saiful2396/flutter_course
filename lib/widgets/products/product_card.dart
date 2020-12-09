@@ -16,60 +16,62 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          Image.network(
-            product.image,
-            height: 250,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          Container(
-            padding: const EdgeInsets.only(top: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TitleDefault(product.title),
-                SizedBox(width: 10),
-                ProductTag(
-                  product.price.toString(),
-                ),
-              ],
-            ),
-          ),
-          AddressTag('Simanto Square, Dhaka'),
-          Text(product.userEmail),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        return Card(
+          child: Column(
             children: [
-              IconButton(
-                icon: Icon(Icons.info),
-                color: Theme.of(context).accentColor,
-                onPressed: () {
-                  Navigator.pushNamed<bool>(
-                    context,
-                    '/products/' + prodIndex.toString(),
-                  );
-                },
+              FadeInImage(
+                image: NetworkImage(product.image),
+                height: 250,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: AssetImage('assets/sweet.jpg'),
               ),
-              ScopedModelDescendant<MainModel>(
-                builder:
-                    (BuildContext context, Widget child, MainModel model) {
-                  return IconButton(
-                    icon: Icon(model.allProducts[prodIndex].isFav ? Icons.favorite : Icons.favorite_border),
+              Container(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TitleDefault(product.title),
+                    SizedBox(width: 10),
+                    ProductTag(
+                      product.price.toString(),
+                    ),
+                  ],
+                ),
+              ),
+              AddressTag('Simanto Square, Dhaka'),
+              Text(product.userEmail),
+              ButtonBar(
+                alignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.info),
                     color: Theme.of(context).accentColor,
                     onPressed: () {
-                      model.selectProduct(prodIndex);
+                      Navigator.pushNamed<bool>(
+                        context,
+                        '/products/' + model.allProducts[prodIndex].id,
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(model.allProducts[prodIndex].isFav
+                        ? Icons.favorite
+                        : Icons.favorite_border),
+                    color: Theme.of(context).accentColor,
+                    onPressed: () {
+                      model.selectProduct(model.allProducts[prodIndex].id);
                       model.toggleFav();
                     },
-                  );
-                },
+                  ),
+                ],
               ),
             ],
-          )
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }

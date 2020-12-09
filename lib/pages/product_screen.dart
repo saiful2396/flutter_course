@@ -35,7 +35,11 @@ class _ProductScreenState extends State<ProductScreen> {
           ),
         );
       }
-      return content;
+      return RefreshIndicator(
+        onRefresh: model.fetchData,
+        color: Theme.of(context).primaryColor,
+        child: content,
+      );
     });
   }
 
