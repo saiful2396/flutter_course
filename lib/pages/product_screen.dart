@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/products/products.dart';
+import '../widgets/ui_element/logout_list_tile.dart';
 import '../scope-models/main_model.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -78,6 +79,8 @@ class _ProductScreenState extends State<ProductScreen> {
                 );
               },
             ),
+            Divider(),
+            LogoutListTile(),
           ],
         ),
       ),

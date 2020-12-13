@@ -1,34 +1,33 @@
 {
   "project_info": {
-    "project_number": "377635589381",
-    "firebase_url": "https://fir-product-e18ed-default-rtdb.firebaseio.com",
-    "project_id": "fir-product-e18ed",
-    "storage_bucket": "fir-product-e18ed.appspot.com"
+    "project_number": "565297440901",
+    "project_id": "flutter-course-c2450",
+    "storage_bucket": "flutter-course-c2450.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:377635589381:android:6995562f736214b03a3b6c",
+        "mobilesdk_app_id": "1:565297440901:android:d41f2d846446cfa52721ec",
         "android_client_info": {
           "package_name": "com.example.flutter_course"
         }
       },
       "oauth_client": [
         {
-          "client_id": "377635589381-aqt1nno1n6pi6hbumhc0dv38s0dfrn2l.apps.googleusercontent.com",
+          "client_id": "565297440901-ouha97ue8ls926e8gu55vuvn68332rdb.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC7aiVOPHuKtICrLXEAEmCil8CO32ZUqN8"
+          "current_key": "AIzaSyBUixWzGrcAjQbsNFr5LHBWxMjHjmkDB4k"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "377635589381-aqt1nno1n6pi6hbumhc0dv38s0dfrn2l.apps.googleusercontent.com",
+              "client_id": "565297440901-ouha97ue8ls926e8gu55vuvn68332rdb.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

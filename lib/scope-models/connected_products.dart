@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/product.dart';
 import '../models/user.dart';
+import '../models/auth.dart';
 
 class ConnectedProductsModel extends Model {
   List<Product> _products = [];
@@ -48,7 +50,7 @@ class ProductsModel extends ConnectedProductsModel {
     _isLoading = true;
     try {
       final http.Response response = await http.get(
-          'https://fir-product-e18ed-default-rtdb.firebaseio.com/products.json');
+          'https://flutter-course-c2450-default-rtdb.firebaseio.com/products.json?auth=${_authUser.token}');
       //print(json.decode(response.body));
       final List<Product> fetchProductList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
@@ -94,7 +96,7 @@ class ProductsModel extends ConnectedProductsModel {
     };
     try {
       final http.Response response = await http.post(
-        'https://fir-product-e18ed-default-rtdb.firebaseio.com/products.json',
+        'https://flutter-course-c2450-default-rtdb.firebaseio.com/products.json?auth=${_authUser.token}',
         body: json.encode(productData),
       );
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -138,7 +140,7 @@ class ProductsModel extends ConnectedProductsModel {
         'userId': selectedProduct.userId,
       };
       await http.put(
-          'https://fir-product-e18ed-default-rtdb.firebaseio.com/products/${selectedProduct.id}.json',
+          'https://flutter-course-c2450-default-rtdb.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authUser.token}',
           body: json.encode(updateData));
       final Product updatedProduct = Product(
         id: selectedProduct.id,
@@ -167,7 +169,7 @@ class ProductsModel extends ConnectedProductsModel {
     _selProdId = null;
     try {
       await http.delete(
-          'https://fir-product-e18ed-default-rtdb.firebaseio.com/products/${deletedProdId}.json');
+          'https://flutter-course-c2450-default-rtdb.firebaseio.com/products/${deletedProdId}.json?auth=${_authUser.token}');
 
       _isLoading = false;
       notifyListeners();
@@ -209,12 +211,78 @@ class ProductsModel extends ConnectedProductsModel {
 }
 
 class UserModel extends ConnectedProductsModel {
-  void login(String email, String password) {
-    _authUser = User(
-      id: 'asdassd',
-      email: email,
-      password: password,
-    );
+  User get user => _authUser;
+  Future<Map<String, dynamic>> authenticate(String email, String password,
+      [AuthMode mode = AuthMode.Login]) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true,
+    };
+    http.Response response;
+    if (mode == AuthMode.Login) {
+      response = await http.post(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBUixWzGrcAjQbsNFr5LHBWxMjHjmkDB4k',
+        body: json.encode(authData),
+        headers: {'Content-type': 'application/json'},
+      );
+    } else {
+      response = await http.post(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBUixWzGrcAjQbsNFr5LHBWxMjHjmkDB4k',
+        body: json.encode(authData),
+        headers: {'Content-type': 'application/json'},
+      );
+    }
+    //print(json.decode(response.body));
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Something went wrong.';
+    print(responseData);
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication succeeded!';
+      _authUser = User(
+        id: responseData['localId'],
+        email: email,
+        token: responseData['idToken'],
+      );
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', responseData['idToken']);
+      prefs.setString('userEmail', email);
+      prefs.setString('userId', responseData['localId']);
+
+    } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
+      message = 'This email already exist.';
+    } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message = 'This email was not found.';
+    } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
+      message = 'The password is invalid.';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {
+      'success': !hasError,
+      'message': message,
+    };
+  }
+  void autoLogin() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token');
+    if(token != null){
+      final String userEmail = prefs.getString('userEmail');
+      final String userId = prefs.getString('userId');
+      _authUser = User(id: userId, email: userEmail, token: token);
+      notifyListeners();
+    }
+  }
+  void logout() async {
+    _authUser = null;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('userEmail');
+    prefs.remove('userId');
   }
 }
 

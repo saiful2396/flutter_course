@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import './product_list_screen.dart';
 import './product_edit_screen.dart';
+import '../widgets/ui_element/logout_list_tile.dart';
 import '../scope-models/main_model.dart';
 
 class ProductAdminScreen extends StatelessWidget {
@@ -44,6 +45,8 @@ class ProductAdminScreen extends StatelessWidget {
                   );
                 },
               ),
+              Divider(),
+              LogoutListTile(),
             ],
           ),
         ),
