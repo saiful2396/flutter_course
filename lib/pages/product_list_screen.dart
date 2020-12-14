@@ -16,7 +16,7 @@ class ProductListScreen extends StatefulWidget {
 class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
-    widget.model.fetchData();
+    widget.model.fetchData(onlyForUser: true);
     super.initState();
   }
 
@@ -48,6 +48,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   if (direction == DismissDirection.endToStart) {
                     model.selectProduct(model.allProducts[index].id);
                     model.deleteProduct();
+                  } else if (direction == DismissDirection.startToEnd) {
+                    print('Swiped start to end');
                   } else {
                     print('Other');
                   }

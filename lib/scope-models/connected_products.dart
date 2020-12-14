@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../models/product.dart';
 import '../models/user.dart';
@@ -46,7 +48,7 @@ class ProductsModel extends ConnectedProductsModel {
 
   bool get displayFavOnly => _showFav;
 
-  Future<Null> fetchData() async {
+  Future<Null> fetchData({onlyForUser = false}) async {
     _isLoading = true;
     try {
       final http.Response response = await http.get(
@@ -61,17 +63,22 @@ class ProductsModel extends ConnectedProductsModel {
       }
       productListData.forEach((String prodId, dynamic prodData) {
         final Product product = Product(
-          id: prodId,
-          title: prodData['title'],
-          description: prodData['description'],
-          image: prodData['image'],
-          price: prodData['price'],
-          userEmail: prodData['userEmail'],
-          userId: prodData['userId'],
-        );
+            id: prodId,
+            title: prodData['title'],
+            description: prodData['description'],
+            image: prodData['image'],
+            price: prodData['price'],
+            userEmail: prodData['userEmail'],
+            userId: prodData['userId'],
+            isFav: prodData['wishListUser'] == null
+                ? false
+                : (prodData['wishListUser'] as Map<String, dynamic>)
+                    .containsKey(_authUser.id));
         fetchProductList.add(product);
       });
-      _products = fetchProductList;
+      _products = onlyForUser ? fetchProductList.where((Product product) {
+        return product.userId == _authUser.id;
+      }).toList() : fetchProductList;
       _isLoading = false;
       notifyListeners();
       _selProdId = null;
@@ -105,7 +112,7 @@ class ProductsModel extends ConnectedProductsModel {
         return false;
       }
       final Map<String, dynamic> responseData = json.decode(response.body);
-      print(responseData);
+      //print(responseData);
       final Product newProduct = Product(
         id: responseData['name'],
         title: title,
@@ -181,7 +188,7 @@ class ProductsModel extends ConnectedProductsModel {
     }
   }
 
-  void toggleFav() {
+  void toggleFav() async {
     final bool isCurrentlyFav = selectedProduct.isFav;
     final bool isFavorite = !isCurrentlyFav;
     final Product updateProduct = Product(
@@ -196,6 +203,30 @@ class ProductsModel extends ConnectedProductsModel {
     );
     _products[selectedProdIndex] = updateProduct;
     notifyListeners();
+    http.Response response;
+    if (isFavorite) {
+      response = await http.put(
+        'https://flutter-course-c2450-default-rtdb.firebaseio.com/products/${selectedProduct.id}/wishListUser/${_authUser.id}.json?auth=${_authUser.token}',
+        body: json.encode(true),
+      );
+    } else {
+      response = await http.delete(
+          'https://flutter-course-c2450-default-rtdb.firebaseio.com/products/${selectedProduct.id}/wishListUser/${_authUser.id}.json?auth=${_authUser.token}');
+    }
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final Product updateProduct = Product(
+        id: selectedProduct.id,
+        title: selectedProduct.title,
+        description: selectedProduct.description,
+        image: selectedProduct.image,
+        price: selectedProduct.price,
+        userEmail: selectedProduct.userEmail,
+        userId: selectedProduct.userId,
+        isFav: !isFavorite,
+      );
+      _products[selectedProdIndex] = updateProduct;
+      notifyListeners();
+    }
   }
 
   void selectProduct(String productId) {
@@ -211,7 +242,13 @@ class ProductsModel extends ConnectedProductsModel {
 }
 
 class UserModel extends ConnectedProductsModel {
+  PublishSubject<bool> _userSubject = PublishSubject();
+  Timer _authTimer;
+
   User get user => _authUser;
+
+  PublishSubject<bool> get userSubject => _userSubject;
+
   Future<Map<String, dynamic>> authenticate(String email, String password,
       [AuthMode mode = AuthMode.Login]) async {
     _isLoading = true;
@@ -239,7 +276,7 @@ class UserModel extends ConnectedProductsModel {
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong.';
-    print(responseData);
+    //print(responseData);
     if (responseData.containsKey('idToken')) {
       hasError = false;
       message = 'Authentication succeeded!';
@@ -248,11 +285,16 @@ class UserModel extends ConnectedProductsModel {
         email: email,
         token: responseData['idToken'],
       );
+      setAuthTimeout(int.parse(responseData['expiresIn']));
+      _userSubject.add(true);
+      final DateTime now = DateTime.now();
+      final DateTime expiryTime =
+          now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['idToken']);
       prefs.setString('userEmail', email);
       prefs.setString('userId', responseData['localId']);
-
+      prefs.setString('expiryTime', expiryTime.toIso8601String());
     } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
       message = 'This email already exist.';
     } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
@@ -267,22 +309,42 @@ class UserModel extends ConnectedProductsModel {
       'message': message,
     };
   }
+
   void autoLogin() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String token = prefs.getString('token');
-    if(token != null){
+    final String expiryTimeString = prefs.getString('expiryTime');
+    if (token != null) {
+      final DateTime now = DateTime.now();
+      final parsedExpiryTime = DateTime.parse(expiryTimeString);
+      if (parsedExpiryTime.isBefore(now)) {
+        _authUser = null;
+        notifyListeners();
+        return;
+      }
       final String userEmail = prefs.getString('userEmail');
       final String userId = prefs.getString('userId');
+      final tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
       _authUser = User(id: userId, email: userEmail, token: token);
+      _userSubject.add(true);
+      setAuthTimeout(tokenLifespan);
       notifyListeners();
     }
   }
+
   void logout() async {
+    //print('logout');
     _authUser = null;
+    _authTimer.cancel();
+    _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('userEmail');
     prefs.remove('userId');
+  }
+
+  void setAuthTimeout(int time) {
+    _authTimer = Timer(Duration(seconds: time), logout);
   }
 }
 

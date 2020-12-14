@@ -17,15 +17,22 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final MainModel _model = MainModel();
+  bool _isAuthenticated = false;
 
   @override
   void initState() {
     _model.autoLogin();
+    _model.userSubject.listen((  isAuthenticated) {
+      setState(() {
+        _isAuthenticated = isAuthenticated;
+      });
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build Main page');
     return ScopedModel<MainModel>(
       model: _model,
       child: MaterialApp(
@@ -39,11 +46,16 @@ class _MyAppState extends State<MyApp> {
         ),
         routes: {
           '/': (BuildContext context) =>
-              _model.user == null ? AuthScreen() : ProductScreen(_model),
-          '/product': (BuildContext context) => ProductScreen(_model),
-          '/admin': (BuildContext context) => ProductAdminScreen(_model),
+              !_isAuthenticated ? AuthScreen() : ProductScreen(_model),
+          '/admin': (BuildContext context) =>
+              !_isAuthenticated ? AuthScreen() : ProductAdminScreen(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
+          if (!_isAuthenticated) {
+            return MaterialPageRoute<bool>(
+              builder: (BuildContext context) => AuthScreen(),
+            );
+          }
           final pathElements = settings.name.split('/');
           if (pathElements[0] != '') {
             return null;
@@ -55,14 +67,17 @@ class _MyAppState extends State<MyApp> {
               return product.id == productId;
             });
             return MaterialPageRoute<bool>(
-              builder: (BuildContext context) => ProductDetailsScreen(product),
+              builder: (BuildContext context) => !_isAuthenticated
+                  ? AuthScreen()
+                  : ProductDetailsScreen(product),
             );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-            builder: (BuildContext context) => ProductScreen(_model),
+            builder: (BuildContext context) =>
+                !_isAuthenticated ? AuthScreen() : ProductScreen(_model),
           );
         },
       ),

@@ -7,7 +7,9 @@ import '../scope-models/main_model.dart';
 
 class ProductAdminScreen extends StatelessWidget {
   final MainModel model;
+
   ProductAdminScreen(this.model);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -39,10 +41,7 @@ class ProductAdminScreen extends StatelessWidget {
                 leading: Icon(Icons.shop),
                 title: Text('All Product'),
                 onTap: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/product',
-                  );
+                  Navigator.pushReplacementNamed(context, '/');
                 },
               ),
               Divider(),
