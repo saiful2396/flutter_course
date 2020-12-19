@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:lee_map_view/map_view.dart';
+
 import '../widgets/ui_element/title_default.dart';
 import '../models/product.dart';
 
@@ -30,6 +32,34 @@ class ProductDetailsScreen extends StatelessWidget {
       ),
     );
   }*/
+  void _showMap() {
+    final markers = <Marker>[
+      Marker(
+        'position',
+        'Position',
+        product.location.latitude,
+        product.location.longitude,
+      ),
+    ];
+    final mapView = MapView();
+    final cameraPosition = CameraPosition(
+        Location(product.location.latitude, product.location.longitude), 14.0);
+    mapView.show(
+      MapOptions(
+          initialCameraPosition: cameraPosition,
+          mapViewType: MapViewType.normal,
+          title: 'Product Location'),
+      toolbarActions: [ToolbarAction('Close', 1)],
+    );
+    mapView.onToolbarAction.listen((int id) {
+      if (id == 1) {
+        mapView.dismiss();
+      }
+    });
+    mapView.onMapReady.listen((_) {
+      mapView.setMarkers(markers);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +89,14 @@ class ProductDetailsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Simanto Square, Dhaka',
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    color: Colors.grey,
+                GestureDetector(
+                  onTap: _showMap,
+                  child: Text(
+                    product.location.address,
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
                 Container(

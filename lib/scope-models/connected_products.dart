@@ -9,6 +9,7 @@ import 'package:rxdart/subjects.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import '../models/auth.dart';
+import '../models/location_data.dart';
 
 class ConnectedProductsModel extends Model {
   List<Product> _products = [];
@@ -68,6 +69,11 @@ class ProductsModel extends ConnectedProductsModel {
             description: prodData['description'],
             image: prodData['image'],
             price: prodData['price'],
+            location: LocationData(
+              address: prodData['loc-address'],
+              latitude: prodData['loc-lat'],
+              longitude: prodData['loc-lng'],
+            ),
             userEmail: prodData['userEmail'],
             userId: prodData['userId'],
             isFav: prodData['wishListUser'] == null
@@ -76,9 +82,11 @@ class ProductsModel extends ConnectedProductsModel {
                     .containsKey(_authUser.id));
         fetchProductList.add(product);
       });
-      _products = onlyForUser ? fetchProductList.where((Product product) {
-        return product.userId == _authUser.id;
-      }).toList() : fetchProductList;
+      _products = onlyForUser
+          ? fetchProductList.where((Product product) {
+              return product.userId == _authUser.id;
+            }).toList()
+          : fetchProductList;
       _isLoading = false;
       notifyListeners();
       _selProdId = null;
@@ -89,8 +97,8 @@ class ProductsModel extends ConnectedProductsModel {
     }
   }
 
-  Future<bool> addProduct(
-      String title, String description, String image, double price) async {
+  Future<bool> addProduct(String title, String description, String image,
+      double price, LocationData locData) async {
     _isLoading = true;
     final Map<String, dynamic> productData = {
       'title': title,
@@ -100,6 +108,9 @@ class ProductsModel extends ConnectedProductsModel {
       'price': price,
       'userEmail': _authUser.email,
       'userId': _authUser.id,
+      'loc-lat': locData.latitude,
+      'loc-lng': locData.longitude,
+      'loc-address': locData.address,
     };
     try {
       final http.Response response = await http.post(
@@ -119,6 +130,7 @@ class ProductsModel extends ConnectedProductsModel {
         description: description,
         image: image,
         price: price,
+        location: locData,
         userEmail: _authUser.email,
         userId: _authUser.id,
       );
@@ -134,7 +146,7 @@ class ProductsModel extends ConnectedProductsModel {
   }
 
   Future<bool> updateProduct(
-      String title, String description, String image, double price) async {
+      String title, String description, String image, double price, LocationData locData) async {
     _isLoading = true;
     try {
       final Map<String, dynamic> updateData = {
@@ -145,6 +157,9 @@ class ProductsModel extends ConnectedProductsModel {
         'price': price,
         'userEmail': selectedProduct.userEmail,
         'userId': selectedProduct.userId,
+        'loc-lat': locData.latitude,
+        'loc-lng': locData.longitude,
+        'loc-address': locData.address,
       };
       await http.put(
           'https://flutter-course-c2450-default-rtdb.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authUser.token}',
@@ -155,6 +170,7 @@ class ProductsModel extends ConnectedProductsModel {
         description: description,
         image: image,
         price: price,
+        location: locData,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
       );
@@ -197,6 +213,7 @@ class ProductsModel extends ConnectedProductsModel {
       description: selectedProduct.description,
       image: selectedProduct.image,
       price: selectedProduct.price,
+      location: selectedProduct.location,
       userEmail: selectedProduct.userEmail,
       userId: selectedProduct.userId,
       isFav: isFavorite,
@@ -220,6 +237,7 @@ class ProductsModel extends ConnectedProductsModel {
         description: selectedProduct.description,
         image: selectedProduct.image,
         price: selectedProduct.price,
+        location: selectedProduct.location,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
         isFav: !isFavorite,
@@ -231,8 +249,9 @@ class ProductsModel extends ConnectedProductsModel {
 
   void selectProduct(String productId) {
     _selProdId = productId;
-
-    notifyListeners();
+    if (productId != null) {
+      notifyListeners();
+    }
   }
 
   void toggleDisplayMode() {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:scoped_model/scoped_model.dart';
+import 'package:lee_map_view/map_view.dart';
 
 import './pages/product_screen.dart';
 import './pages/product_admin_screen.dart';
@@ -8,7 +10,11 @@ import './pages/auth_screen.dart';
 import './scope-models/main_model.dart';
 import './models/product.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MapView.setApiKey('AIzaSyDnIZj5SxU8Zo87f54s0gLS7bSLt9me3X4');
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override

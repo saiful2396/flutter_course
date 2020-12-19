@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/helpers/ensure_visible.dart';
+import '../widgets/form-inputs/location.dart';
 import '../scope-models/main_model.dart';
+import '../models/location_data.dart';
+import '../models/product.dart';
 
 class ProductEditScreen extends StatefulWidget {
   @override
@@ -17,10 +20,16 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     'price': null,
     'description': null,
     'image': 'assets/sweet.jpg',
+    'location': null,
   };
   final _titleFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
+  final _titleController = TextEditingController();
+
+  void _setLocation(LocationData locData) {
+    _formData['location'] = locData;
+  }
 
   void _saveForm(
       Function addProduct, Function updateProduct, Function setSelectedProduct,
@@ -31,11 +40,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     _formKey.currentState.save();
     if (selectedProdIndex == -1) {
       addProduct(
-        _formData['title'],
-        _formData['description'],
-        _formData['image'],
-        _formData['price'],
-      ).then(
+              //_formData['title'],
+              _titleController.text,
+              _formData['description'],
+              _formData['image'],
+              _formData['price'],
+              _formData['location'])
+          .then(
         (bool success) {
           if (success) {
             return Navigator.pushReplacementNamed(context, '/product').then(
@@ -62,10 +73,12 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       );
     } else {
       updateProduct(
-        _formData['title'],
+        //_formData['title'],
+        _titleController.text,
         _formData['description'],
         _formData['image'],
         _formData['price'],
+        _formData['location'],
       ).then(
         (_) => Navigator.pushReplacementNamed(context, '/product').then(
           (_) => setSelectedProduct(null),
@@ -74,25 +87,136 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTitleTextField(BuildContext context, Product product) {
+    if (product == null && _titleController.text.trim() == '') {
+      _titleController.text = '';
+    } else if (product != null && _titleController.text.trim() == '') {
+      _titleController.text = product.title;
+    } else if (product != null && _titleController.text.trim() != '') {
+      _titleController.text = _titleController.text;
+    } else if (product == null && _titleController.text.trim() != '') {
+      _titleController.text = _titleController.text;
+    } else {
+      _titleController.text = '';
+    }
+    return EnsureVisibleWhenFocused(
+      focusNode: _titleFocusNode,
+      child: TextFormField(
+        focusNode: _titleFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Title',
+        ),
+        // initialValue: model.selectedProduct == null
+        //     ? ''
+        //     : model.selectedProduct.title,
+        controller: _titleController,
+        validator: (val) {
+          if (val.isEmpty || val.length < 5) {
+            return 'Title is required & too short';
+          }
+          return null;
+        },
+        onSaved: (val) {
+          setState(() {
+            _formData['title'] = val;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildDescriptionTextField(BuildContext context, Product product) {
+    return EnsureVisibleWhenFocused(
+      focusNode: _descriptionFocusNode,
+      child: TextFormField(
+        focusNode: _descriptionFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Description',
+        ),
+        maxLines: 4,
+        initialValue: product == null ? '' : product.description,
+        validator: (val) {
+          if (val.isEmpty || val.length < 12) {
+            return 'Description is required & too short';
+          }
+          return null;
+        },
+        onSaved: (val) {
+          setState(() {
+            _formData['description'] = val;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildPriceTextField(BuildContext context, Product product) {
+    return EnsureVisibleWhenFocused(
+      focusNode: _priceFocusNode,
+      child: TextFormField(
+        focusNode: _priceFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Price',
+        ),
+        keyboardType: TextInputType.number,
+        initialValue: product == null ? '' : product.price.toString(),
+        validator: (val) {
+          if (val.isEmpty ||
+              !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(val)) {
+            return 'Price is required & should be a number';
+          }
+          return null;
+        },
+        onSaved: (val) {
+          setState(() {
+            _formData['price'] = double.parse(val);
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return model.isLoading
+          ? Center(child: CircularProgressIndicator())
+          : RaisedButton(
+              onPressed: () => _saveForm(
+                model.addProduct,
+                model.updateProduct,
+                model.selectProduct,
+                model.selectedProdIndex,
+              ),
+              child: Text('Save'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              textColor: Colors.white,
+            );
+    });
+  }
+
+  Widget _buildPageContent(BuildContext context, Product product) {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double devicePadding = deviceWidth - targetWidth;
-    return ScopedModelDescendant<MainModel>(
-      builder: (BuildContext context, Widget child, MainModel model) {
-        final Widget pageContent = GestureDetector(
-          onTap: () {
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-          child: Container(
-            padding: const EdgeInsets.only(top: 15.0),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: devicePadding / 2),
-                children: [
-                  EnsureVisibleWhenFocused(
+    return Scaffold(
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Container(
+          margin: const EdgeInsets.all(10.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: devicePadding / 2),
+              children: [
+                _buildTitleTextField(context, product),
+                _buildDescriptionTextField(context, product),
+                _buildPriceTextField(context, product),
+                /*EnsureVisibleWhenFocused(
                     focusNode: _titleFocusNode,
                     child: TextFormField(
                       focusNode: _titleFocusNode,
@@ -164,43 +288,32 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         });
                       },
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 10),
-                    alignment: Alignment.bottomRight,
-                    child: model.isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : RaisedButton(
-                            onPressed: () => _saveForm(
-                              model.addProduct,
-                              model.updateProduct,
-                              model.selectProduct,
-                              model.selectedProdIndex,
-                            ),
-                            child: Text('Save'),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            textColor: Colors.white,
-                          ),
-                  ),
-                ],
-              ),
+                  ),*/
+                SizedBox(height: 10),
+                LocationInput(_setLocation, product),
+                SizedBox(height: 10),
+                _buildSubmitButton(context),
+              ],
             ),
           ),
-        );
-        return model.selectedProdIndex == -1
-            ? pageContent
-            : Scaffold(
-                appBar: AppBar(
-                  title: Text('Edit Product'),
-                ),
-                body: pageContent,
-              );
-      },
+        ),
+      ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopedModelDescendant<MainModel>(builder: (context, child, model) {
+      final Widget pageContent =
+          _buildPageContent(context, model.selectedProduct);
+      return model.selectedProdIndex == -1
+          ? pageContent
+          : Scaffold(
+              appBar: AppBar(
+                title: Text('Edit Product'),
+              ),
+              body: pageContent,
+            );
+    });
   }
 }

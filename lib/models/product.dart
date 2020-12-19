@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../models/location_data.dart';
+
 
 class Product {
   final String id;
@@ -9,6 +11,7 @@ class Product {
   final bool isFav;
   final String userEmail;
   final String userId;
+  final LocationData location;
 
   Product({
     @required this.id,
@@ -18,6 +21,7 @@ class Product {
     @required this.price,
     @required this.userEmail,
     @required this.userId,
+    @required this.location,
     this.isFav = false,
   });
 }

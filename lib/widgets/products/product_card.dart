@@ -41,7 +41,7 @@ class ProductCard extends StatelessWidget {
                   ],
                 ),
               ),
-              AddressTag('Simanto Square, Dhaka'),
+              AddressTag(product.location.address),
               Text(product.userEmail),
               ButtonBar(
                 alignment: MainAxisAlignment.center,

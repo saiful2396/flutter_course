@@ -74,7 +74,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 return ProductEditScreen();
                               },
                             ),
-                          );
+                          ).then((_)=> model.selectProduct(null));
                         },
                       ),
                     ),
