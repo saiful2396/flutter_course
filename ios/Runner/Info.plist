@@ -6,6 +6,12 @@
     <string>User location is required to add a product location.</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>User location is required to add a product location.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Image used as a product</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Image used as a product</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>Image used as a product</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "565297440901",
+    "firebase_url": "https://flutter-course-c2450-default-rtdb.firebaseio.com",
     "project_id": "flutter-course-c2450",
     "storage_bucket": "flutter-course-c2450.appspot.com"
   },

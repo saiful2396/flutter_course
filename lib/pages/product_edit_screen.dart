@@ -4,6 +4,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/helpers/ensure_visible.dart';
 import '../widgets/form-inputs/location.dart';
+import '../widgets/form-inputs/image.dart';
 import '../scope-models/main_model.dart';
 import '../models/location_data.dart';
 import '../models/product.dart';
@@ -26,6 +27,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
   final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _priceController = TextEditingController();
 
   void _setLocation(LocationData locData) {
     _formData['location'] = locData;
@@ -42,9 +45,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       addProduct(
               //_formData['title'],
               _titleController.text,
-              _formData['description'],
+              _descriptionController.text,
               _formData['image'],
-              _formData['price'],
+              double.parse(_priceController.text),
               _formData['location'])
           .then(
         (bool success) {
@@ -75,9 +78,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       updateProduct(
         //_formData['title'],
         _titleController.text,
-        _formData['description'],
+        _descriptionController.text,
         _formData['image'],
-        _formData['price'],
+        double.parse(_priceController.text),
         _formData['location'],
       ).then(
         (_) => Navigator.pushReplacementNamed(context, '/product').then(
@@ -126,6 +129,11 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   }
 
   Widget _buildDescriptionTextField(BuildContext context, Product product) {
+    if (product == null && _descriptionController.text.trim() == '') {
+      _descriptionController.text = '';
+    } else if (product != null && _descriptionController.text.trim() == '') {
+      _descriptionController.text = product.description;
+    }
     return EnsureVisibleWhenFocused(
       focusNode: _descriptionFocusNode,
       child: TextFormField(
@@ -134,7 +142,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
           labelText: 'Description',
         ),
         maxLines: 4,
-        initialValue: product == null ? '' : product.description,
+        controller: _descriptionController,
+        //initialValue: product == null ? '' : product.description,
         validator: (val) {
           if (val.isEmpty || val.length < 12) {
             return 'Description is required & too short';
@@ -151,6 +160,11 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   }
 
   Widget _buildPriceTextField(BuildContext context, Product product) {
+    if (product == null && _priceController.text.trim() == '') {
+      _priceController.text = '';
+    } else if (product != null && _priceController.text.trim() == '') {
+      _priceController.text = product.price.toString();
+    }
     return EnsureVisibleWhenFocused(
       focusNode: _priceFocusNode,
       child: TextFormField(
@@ -159,7 +173,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
           labelText: 'Price',
         ),
         keyboardType: TextInputType.number,
-        initialValue: product == null ? '' : product.price.toString(),
+        //initialValue: product == null ? '' : product.price.toString(),
+        controller: _priceController,
         validator: (val) {
           if (val.isEmpty ||
               !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(val)) {
@@ -189,9 +204,6 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                 model.selectedProdIndex,
               ),
               child: Text('Save'),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
               textColor: Colors.white,
             );
     });
@@ -291,6 +303,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                   ),*/
                 SizedBox(height: 10),
                 LocationInput(_setLocation, product),
+                SizedBox(height: 10),
+                ImageInput(),
                 SizedBox(height: 10),
                 _buildSubmitButton(context),
               ],
